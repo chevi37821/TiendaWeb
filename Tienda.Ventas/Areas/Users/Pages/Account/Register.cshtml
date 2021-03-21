@@ -1,0 +1,93 @@
+﻿@page   "/Users/Register"
+@model RegisterModel
+@{
+
+    var image = "/images/images/loginx256.png";//varaible de la ruta
+}
+<link rel="stylesheet" href="~/css/site.css" />
+<div class="container p-4">
+    <form method="post" enctype="multipart/form-data">
+        <div class="row">
+            <div class="col-sm-4 col-md-3">
+                <div class="card text-center">
+                    <div class="card-header">
+                        <output id="imageUser">
+                            <img src="@image" alt="imageUser" />
+                        </output>
+                    </div>
+                    <div class="card-body">
+                        <div class="caption text-center">
+                            <label class="btn btn-primary" for="files">Cargar Foto</label>
+                            <input asp-for="Input.AvatarImage" accept="image/*" type="file" id="files" />
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6 col-md-5">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Registrar Usuario</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="accordion" id="accordionExample">
+                            <div class="card">
+                                <div class="card-header" id="headingOne">
+                                    <div id="header" class="bg-info">
+                                        <h2 class="mb-0 t">
+                                            <button class="btn btn-link text-light" type="button" data-toggle="collapse"
+                                                    data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                                Ingresar Datos
+                                            </button>
+
+                                        </h2>
+                                    </div>
+                                </div>
+                                <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" 
+                                     data-parent="#accordionExample">
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <input asp-for="Input.Cedula" placeholder="Cedula" class="form-control"  />
+                                            <span asp-validation-for="Input.Cedula" class="text-danger"> </span>
+                                        </div>
+                                        <div class="form-group">
+                                            <input asp-for="Input.Name" placeholder="Nombres" class="form-control" />
+                                            <span asp-validation-for="Input.Name" class="text-danger"> </span>
+                                        </div>
+                                        <div class="form-group">
+                                            <input asp-for="Input.LastName" placeholder="Apellidos" class="form-control" />
+                                            <span asp-validation-for="Input.LastName" class="text-danger"> </span>
+                                        </div>
+                                        <div class="form-group">
+                                            <input asp-for="Input.PhoneNumber" placeholder="Telefono" class="form-control" />
+                                            <span asp-validation-for="Input.PhoneNumber" class="text-danger"> </span>
+                                        </div>
+                                        <div class="form-group">
+                                            <input asp-for="Input.Email" placeholder="Email" class="form-control" />
+                                            <span asp-validation-for="Input.Email" class="text-danger"> </span>
+                                        </div>
+                                        <div class="form-group">
+                                            <input asp-for="Input.Password" placeholder="Contraseña" class="form-control" />
+                                            <span asp-validation-for="Input.Password" class="text-danger"> </span>
+                                        </div>
+                                        <div class="form-group">@*usamos metodo tipo select dropdownlist, donde usamos un list de tipo roles que esta en la clase register y los parametros de tipo text*@
+                                            @Html.DropDownList("Input.Role", new SelectList(Model.Input.rolesLista, "Text", "Text"), "Seleccione un Rol", new {@class="form-control"})
+
+                                        </div>
+                                        <div class="form-group">
+                                            <button type="submit" class="btn btn-info btn-block">Registrar</button>                                            
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="text-danger">@Html.DisplayFor(m => m.Input.ErrorMessage)</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
