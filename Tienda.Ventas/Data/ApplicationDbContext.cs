@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Tienda.Ventas.Areas.Users.Models;
 
 namespace Tienda.Ventas.Data
 {
@@ -13,5 +14,6 @@ namespace Tienda.Ventas.Data
         {
 
         }
+        public DbSet<TUsers> TUsers { get; set; }
     }
 }

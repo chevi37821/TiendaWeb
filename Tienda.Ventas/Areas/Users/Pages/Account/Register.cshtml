@@ -2,7 +2,7 @@
 @model RegisterModel
 @{
 
-    var image = "/images/images/loginx256.png";//varaible de la ruta
+    var image = "/images/images/login.png";//varaible de la ruta
 }
 <link rel="stylesheet" href="~/css/site.css" />
 <div class="container p-4">
@@ -70,9 +70,10 @@
                                             <input asp-for="Input.Password" placeholder="Contraseña" class="form-control" />
                                             <span asp-validation-for="Input.Password" class="text-danger"> </span>
                                         </div>
-                                        <div class="form-group">@*usamos metodo tipo select dropdownlist, donde usamos un list de tipo roles que esta en la clase register y los parametros de tipo text*@
-                                            @Html.DropDownList("Input.Role", new SelectList(Model.Input.rolesLista, "Text", "Text"), "Seleccione un Rol", new {@class="form-control"})
-
+                                        <div class="form-group">
+                                            @*usamos metodo tipo select dropdownlist, donde usamos un list de tipo roles que esta en la clase register y los parametros de tipo text*@
+                                           @Html.DropDownList("Input.Role", new SelectList(Model.Input.rolesLista, "Text", "Text"), "Seleccione un Rol", new { @class = "form-control" })
+                                           <span asp-validation-for="Input.Role" class="text-danger"> </span>
                                         </div>
                                         <div class="form-group">
                                             <button type="submit" class="btn btn-info btn-block">Registrar</button>                                            
@@ -91,3 +92,6 @@
         </div>
     </form>
 </div>
+@section Scripts{ 
+<Partial name="_ValidationScriptsPartial"/>
+}

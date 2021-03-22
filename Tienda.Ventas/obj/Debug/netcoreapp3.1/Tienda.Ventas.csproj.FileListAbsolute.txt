@@ -166,3 +166,4 @@ C:\Users\Servientrega\OneDrive - Servientrega S.A\NEt\Webventas\Tienda\Tienda.Ve
 C:\Users\Servientrega\OneDrive - Servientrega S.A\NEt\Webventas\Tienda\Tienda.Ventas\obj\Debug\netcoreapp3.1\Tienda.Ventas.dll
 C:\Users\Servientrega\OneDrive - Servientrega S.A\NEt\Webventas\Tienda\Tienda.Ventas\obj\Debug\netcoreapp3.1\Tienda.Ventas.pdb
 C:\Users\Servientrega\OneDrive - Servientrega S.A\NEt\Webventas\Tienda\Tienda.Ventas\obj\Debug\netcoreapp3.1\Tienda.Ventas.genruntimeconfig.cache
+C:\Users\Servientrega\OneDrive - Servientrega S.A\NEt\Webventas\Tienda\Tienda.Ventas\obj\Debug\netcoreapp3.1\Tienda.Ventas.csprojAssemblyReference.cache

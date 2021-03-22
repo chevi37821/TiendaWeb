@@ -14,6 +14,7 @@ namespace Tienda.Ventas.Areas.Users.Models
         [Required(ErrorMessage ="El Campo Apellidos es Requerido.")]
         public string LastName { get; set; }
 
+        [Required(ErrorMessage = "El campo Cedula es Obligatorio")]
         public string Cedula { get; set; }
 
         [Required(ErrorMessage ="El campo Telefono es Obligatorio")]
@@ -30,7 +31,7 @@ namespace Tienda.Ventas.Areas.Users.Models
         [StringLength(100,ErrorMessage ="El numero de caracteres de {0} debe ser al menos {2}.", MinimumLength = 6)]
         public string Password { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Seleccione un role.")]
         public string Role { get; set; }
     }
 }

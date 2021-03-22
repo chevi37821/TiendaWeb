@@ -13,16 +13,16 @@ namespace Tienda.Ventas.Controllers
 {
     public class HomeController : Controller
     {
-        //IServiceProvider _serviceProvider;//si necestiamos crear mas roles activamos esto
+      // IServiceProvider _serviceProvider;//si necestiamos crear mas roles activamos esto
 
         public HomeController(IServiceProvider serviceProvider)//como parametro el objeto para hacer la inyeccion dp
         {
-            //_serviceProvider = serviceProvider;
+        //   _serviceProvider = serviceProvider;
         }
 
         public async Task<IActionResult> Index()//convertir asyncrono
         {
-            //await CreateRolesAsync(_serviceProvider);//llamamos al metodo create
+         //  await CreateRolesAsync(_serviceProvider);//llamamos al metodo create
             return View();
         }
 
@@ -43,7 +43,7 @@ namespace Tienda.Ventas.Controllers
             //identityrole usando la clase rolemanager
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             //creo arreglo de tipo string lo inicicializo con los roles que ire a manejar
-            String[] rolesName = { "Admin", "Vendedor" };
+            String[] rolesName = { "Administrador", "Vendedor" };
             //recorrer los roles 
             foreach (var item in rolesName)//recorremos roles mediante la variable item
             {
