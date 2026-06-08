@@ -98,8 +98,9 @@ jobs:
 
       # Paso 7: Empaqueta el proyecto con el autopackager
       # Con los DLLs en ./publish/ el autopackager genera:
-      # veracode-auto-pack-TiendaWeb-dotnet.zip
-      # que contiene los assemblies compilados listos para Veracode
+      # veracode-auto-pack-TiendaWeb-dotnet.zip (DLLs compilados)
+      # veracode-auto-pack-TiendaWeb-dotnet-js.zip (JS del proyecto)
+      # Solo necesitamos el dotnet.zip para el SAST de .NET
       - name: Veracode Autopackage
         run: |
           echo '[INFO] Empaquetando proyecto .NET...'
@@ -111,20 +112,22 @@ jobs:
           echo '[INFO] Artefactos generados:'
           ls -la ./dist/
 
-      # Paso 8: Sube el artefacto para el job de scan
-      # Si el autopackager generó un .zip de DLLs lo sube
-      # Si no, sube el contenido de ./publish como fallback
-      - name: Subir artefacto
+      # Paso 8: Sube SOLO el ZIP de .NET (no el de JS)
+      # El autopackager genera dos ZIPs:
+      # - veracode-auto-pack-...-dotnet.zip    → DLLs compilados ✅
+      # - veracode-auto-pack-...-dotnet-js.zip → JS del proyecto ❌
+      # Subimos solo el dotnet.zip para evitar escanear el JS
+      - name: Subir artefacto .NET
         uses: actions/upload-artifact@v4
         with:
           name: tiendaweb-artifact
-          path: |
-            ./dist/*.zip
-            ./publish/*.dll
+          path: ./dist/*dotnet.zip
+          # El wildcard *dotnet.zip captura el ZIP de DLLs
+          # pero NO captura el dotnet-js.zip gracias al patrón
 
   # ══════════════════════════════════════════
   # JOB 2: VERACODE PIPELINE SCAN
-  # Descarga el artefacto y lo envía a Veracode
+  # Descarga el artefacto .NET y lo envía a Veracode
   # para análisis estático (SAST) de .NET
   # ══════════════════════════════════════════
   veracode-scan:
@@ -132,51 +135,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Paso 1: Descarga el artefacto
+      # Paso 1: Descarga el artefacto .NET
       - name: Descargar artefacto
         uses: actions/download-artifact@v4
         with:
           name: tiendaweb-artifact
 
-      # Paso 2: Lista archivos y prepara el artefacto
-      # Si vienen DLLs sueltos los empaqueta en un ZIP
-      # para que el Pipeline Scanner pueda procesarlos
-     
-      - name: Preparar artefacto para scan
+      # Paso 2: Verificar artefacto descargado
+      - name: Verificar artefacto
         run: |
-          echo '[INFO] Contenido del directorio raíz:'
+          echo '[INFO] Archivos disponibles:'
           ls -la
-
-          echo '[INFO] Contenido de dist/:'
-          ls -la dist/ || echo 'dist/ vacío o no existe'
-
-          echo '[INFO] Contenido de publish/:'
-          ls -la publish/ || echo 'publish/ vacío o no existe'
-
-          # Buscar ZIP en dist/ primero
-          if ls dist/*.zip 1>/dev/null 2>&1; then
-            echo '[INFO] ZIP encontrado en dist/'
-            cp dist/*.zip .
-            echo '[INFO] ZIP copiado al directorio raíz'
-
-          # Buscar DLLs en publish/ como fallback
-          elif ls publish/*.dll 1>/dev/null 2>&1; then
-            echo '[INFO] DLLs encontrados en publish/ — empaquetando...'
-            cd publish
-            zip -r ../tiendaweb-dotnet.zip *.dll *.pdb 2>/dev/null || true
-            cd ..
-            echo '[INFO] ZIP generado:'
-            ls -la tiendaweb-dotnet.zip
-
-          else
-            echo '[ERROR] No se encontró artefacto en dist/ ni publish/'
+          # Validar que llegó el ZIP correcto
+          if ! ls *.zip 1>/dev/null 2>&1; then
+            echo '[ERROR] No se encontró artefacto ZIP'
             exit 1
           fi
-
-          echo '[INFO] Archivos listos para escanear:'
+          echo '[INFO] ZIP encontrado:'
           ls -la *.zip
 
       # Paso 3: Instala Java para ejecutar pipeline-scan.jar
+      # Cada job corre en runner limpio — Java debe reinstalarse
       - name: Set up JDK 11
         uses: actions/setup-java@v4
         with:
@@ -184,7 +163,7 @@ jobs:
           distribution: 'temurin'
 
       # Paso 4: Ejecuta el Pipeline Scan de Veracode
-      # Para .NET el artefacto es un ZIP con DLLs compilados
+      # El artefacto es el ZIP de DLLs compilados de .NET
       # --fail_on_severity: bloquea si encuentra Very High o High
       # Quitar esa línea para modo pasivo (solo reporta, no bloquea)
       - name: Veracode Pipeline Scan
@@ -199,13 +178,14 @@ jobs:
           echo '[INFO] Archivos disponibles para escanear:'
           ls -la
 
-          # Detectar el ZIP del artefacto
-          # Excluye pipeline-scan-LATEST.zip
-          ZIP_FILE=$(ls *.zip | grep -v "pipeline-scan" | head -1)
+          # Detectar el ZIP de .NET — excluye pipeline-scan y el JS
+          # grep -v "pipeline-scan": excluye el scanner descargado
+          # grep -v "\-js\.zip": excluye el ZIP de JavaScript
+          ZIP_FILE=$(ls *.zip | grep -v "pipeline-scan" | grep -v "\-js\.zip" | head -1)
 
-          # Validar que se encontró el artefacto
+          # Validar que se encontró el artefacto correcto
           if [ -z "$ZIP_FILE" ]; then
-            echo '[ERROR] No se encontró artefacto ZIP para escanear'
+            echo '[ERROR] No se encontró artefacto ZIP de .NET para escanear'
             exit 1
           fi
 
