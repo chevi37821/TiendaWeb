@@ -141,27 +141,40 @@ jobs:
       # Paso 2: Lista archivos y prepara el artefacto
       # Si vienen DLLs sueltos los empaqueta en un ZIP
       # para que el Pipeline Scanner pueda procesarlos
+     
       - name: Preparar artefacto para scan
         run: |
-          echo '[INFO] Archivos disponibles:'
+          echo '[INFO] Contenido del directorio raíz:'
           ls -la
 
-          # Si existe un ZIP del autopackager usarlo directamente
-          if ls *.zip 1>/dev/null 2>&1; then
-            echo '[INFO] ZIP del autopackager encontrado.'
-            ls -la *.zip
+          echo '[INFO] Contenido de dist/:'
+          ls -la dist/ || echo 'dist/ vacío o no existe'
 
-          # Si solo hay DLLs sueltos empaquetarlos en un ZIP
-          elif ls *.dll 1>/dev/null 2>&1; then
-            echo '[INFO] DLLs encontrados — empaquetando en ZIP para Veracode...'
-            zip -r tiendaweb-dotnet.zip *.dll *.pdb 2>/dev/null || true
+          echo '[INFO] Contenido de publish/:'
+          ls -la publish/ || echo 'publish/ vacío o no existe'
+
+          # Buscar ZIP en dist/ primero
+          if ls dist/*.zip 1>/dev/null 2>&1; then
+            echo '[INFO] ZIP encontrado en dist/'
+            cp dist/*.zip .
+            echo '[INFO] ZIP copiado al directorio raíz'
+
+          # Buscar DLLs en publish/ como fallback
+          elif ls publish/*.dll 1>/dev/null 2>&1; then
+            echo '[INFO] DLLs encontrados en publish/ — empaquetando...'
+            cd publish
+            zip -r ../tiendaweb-dotnet.zip *.dll *.pdb 2>/dev/null || true
+            cd ..
             echo '[INFO] ZIP generado:'
             ls -la tiendaweb-dotnet.zip
 
           else
-            echo '[ERROR] No se encontró artefacto para escanear'
+            echo '[ERROR] No se encontró artefacto en dist/ ni publish/'
             exit 1
           fi
+
+          echo '[INFO] Archivos listos para escanear:'
+          ls -la *.zip
 
       # Paso 3: Instala Java para ejecutar pipeline-scan.jar
       - name: Set up JDK 11
